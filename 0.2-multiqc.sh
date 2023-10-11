@@ -1,13 +1,13 @@
 #!/bin/bash
 
-#SBATCH --partition= defq       # the requested queue
+#SBATCH --partition=defq       # the requested queue
 #SBATCH --nodes=1              # number of nodes to use
 #SBATCH --tasks-per-node=1     # for parallel distributed jobs
 #SBATCH --cpus-per-task=4      # for multi-threaded jobs
 #SBATCH --mem-per-cpu=4G      # in megabytes, unless unit explicitly stated
 #SBATCH --error=logs/%J.err         # redirect stderr to this file
 #SBATCH --output=logs/%J.out        # redirect stdout to this file
-#SBATCH --mail-user= carpenterj3@cardiff.ac.uk      # email
+#SBATCH --mail-user=carpenterj3@cardiff.ac.uk      # email
 #SBATCH --mail-type=BEGIN,END,FAIL      # email on job start, end, and/or failure
 
 #################################################################################
@@ -28,7 +28,7 @@ echo \$SLURM_MEM_PER_CPU=${SLURM_MEM_PER_CPU}
 # Modulels to Load and Setup
 #################################################################################
 
-module load multiqc/v/1.9
+module load multiqc/1.9
 
 export workingdir=/mnt/scratch/c1831460/RNA-seq
 
@@ -47,8 +47,8 @@ echo "RUNNING multiqc"
 # Summarise the WC data for all the sequences
 
 multiqc \
-    -i "PROJECT_NAME_RAW_SEQUENCES" \
-    $workingdir/fastqc
+	-i "STM_TCP4_RNA-seq" \
+	$workingdir/fastqc
 
 echo "multiqc COMPLETE" 
 echo "============================="
