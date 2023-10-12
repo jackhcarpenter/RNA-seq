@@ -30,7 +30,7 @@ echo \$SLURM_MEM_PER_CPU=${SLURM_MEM_PER_CPU}
 
 module load multiqc/1.9
 
-export workingdir=/mnt/scratch/c1831460/RNA-seq
+export workingdir=/mnt/scratch/xxxxxx/RNA-seq
 
 ##REMEMBER: set up any directories that the software needs in this script in case 
 ##it is unable to do so itself

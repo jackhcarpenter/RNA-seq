@@ -1,13 +1,13 @@
 #!/bin/bash
 
-#SBATCH --partition= defq       # the requested queue
+#SBATCH --partition=defq       # the requested queue
 #SBATCH --nodes=1              # number of nodes to use
 #SBATCH --tasks-per-node=1     # for parallel distributed jobs
 #SBATCH --cpus-per-task=4      # for multi-threaded jobs
 #SBATCH --mem-per-cpu=4G      # in megabytes, unless unit explicitly stated
 #SBATCH --error=logs/%J.err         # redirect stderr to this file
 #SBATCH --output=logs/%J.out        # redirect stdout to this file
-#SBATCH --mail-user= carpenterj3@cardiff.ac.uk      # email
+#SBATCH --mail-user=carpenterj3@cardiff.ac.uk      # email
 #SBATCH --mail-type=BEGIN,END,FAIL      # email on job start, end, and/or failure
 
 #################################################################################
@@ -30,7 +30,7 @@ echo \$SLURM_MEM_PER_CPU=${SLURM_MEM_PER_CPU}
 
 module load fastp/v0.20
 
-export workingdir=/mnt/scratch/c1831460/RNA-seq
+export workingdir=/mnt/scratch/xxxxxx/RNA-seq
 
 ##REMEMBER: set up any directories that the software needs in this script in case 
 ##it is unable to do so itself
@@ -81,13 +81,13 @@ do
         echo ${i} "= running"
 
         fastp \
-            -i $workingdir/${i}_${x}.R1.fastq.gz \
-			-I $workingdir/${i}_${x}.R2.fastq.gz \
-            --detect_adapted_for_pe \
+            -i $workingdir/fastq/${i}_${x}_R1_001.fastq.gz \
+	    	-I $workingdir/fastq/${i}_${x}_R2_001.fastq.gz \
+	    	--detect_adapter_for_pe \
             --trim_poly_g \
             --correction \
-            -o $workingdir/trimmed_reads/${i}_${x}.fp1.gz \
-            -O $workingdir/trimmed_reads/${i}_${x}.fp2.gz
+            -o $workingdir/fastp/${i}_${x}.fastp1.gz \
+            -O $workingdir/fastp/${i}_${x}.fastp2.gz
 
     echo ${i} "= complete"
 
