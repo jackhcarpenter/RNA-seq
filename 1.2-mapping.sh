@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --partition=QUEUE_NAME       # the requested queue
+#SBATCH --partition=defq       # the requested queue
 #SBATCH --nodes=1              # number of nodes to use
 #SBATCH --tasks-per-node=1     #
 #SBATCH --cpus-per-task=8      #   
@@ -8,7 +8,7 @@
 #SBATCH --time=48:00:00
 #SBATCH --error=logs/%J.err         # redirect stderr to this file
 #SBATCH --output=logs/%J.out        # redirect stdout to this file
-#SBATCH --mail-user=USERNAME@INSTITUTIONAL_ADDRESS  # email
+#SBATCH --mail-user=carpenterj3@cardiff.ac.uk  # email
 #SBATCH --mail-type=BEGIN,END,FAIL      # email on job start, end, and/or failure
 
 #################################################################################
@@ -29,70 +29,83 @@ echo \$SLURM_MEM_PER_CPU=${SLURM_MEM_PER_CPU}
 # Modulels to Load and Setup
 #################################################################################
 
-module load STAR/2.7.3a
+module load STAR/2.7.6a
 
 # point to the directory containing the reference genome
 
-export $refdir=/your/reference/directory
+export refdir=/mnt/scratch/c1831460/RNA-seq/reference_genome
 
 # define the working directory
 
-export $workingdir=/your/working/directory
+export workingdir=/mnt/scratch/c1831460/RNA-seq
 
 ##REMEMBER: set up any directories that the software needs in this script in case 
 ##it is unable to do so itself
-
-mkdir star
 
 #################################################################################
 # Main CMDs
 #################################################################################
 
-echo "============================="
-echo "RUNNING INDEXING"
+# Loop variables
 
-STAR \
-    --runThreadN ${SLURM_CPUS_PER_TASK} \
-    --limitGenomeGenerateRAM \
-    --rnMode genomeGenerage \
-    --genomeDir $refdir/ \
-    --genomeFastaFiles $redir/REFERENCE_GENOME.dna.toplevel.fa \
-    --sjdbGTFfile $refdir/YOUR_REFERENCE_ANNOTATION.gtf \
-    --sjdbOverhang 75
+lane=("L001" \
+	"L002")
 
-# Note: Change --sjdbOverhang to length of your sequence data/2 minus
-
-echo "INDEXING COMPLETE"
-echo "============================="
-# List of sequences to align
-
-list=("sample1" "sample2" "samplen")
+list=("STM_C3_S7" \
+	"STM_C4_S8" \
+	"STM_C5_S9" \
+	"STM_CD3_S10" \
+	"STM_CD4_S11" \
+	"STM_CD5_S12" \
+	"STM_D3_S4" \
+	"STM_D4_S5" \
+	"STM_D5_S6" \
+	"STM_M3_S1" \
+	"STM_M4_S2" \
+	"STM_M5_S3" \
+	"TCP_C2_S19" \
+	"TCP_C4_S20" \
+	"TCP_C5_S21" \
+	"TCP_CO2_S22" \
+	"TCP_CO4_S23" \
+	"TCP_CO5_S24" \
+	"TCP_D2_S16" \
+	"TCP_D4_S17" \
+	"TCP_D5_S18" \
+	"TCP_M2_S13" \
+	"TCP_M4_S14" \
+	"TCP_M5_S15" \
+	"Undetermined_S0")
 
 # Map forward and reverse reads to indexed genome
 
 echo "RUNNING ALIGNMENT"
 
-for i in ${list[@]}
+for x in ${lane[@]}
 do
-    echo ${i} " = running"
+	for i in ${list[@]}
+	do
+		echo ${i} " = running"
 
-    STAR \
-        --outMultimapperOrder Random \
-        --outSAMmultNmax 1 \
-        --runThreadsN ${SLURM_CPUS_PER_TASK} \
-        --runMode alignReads \
-        --outSAMtype BAM Unsorted \
-        --quantMode GeneCounts \
-        --outFileNamePrefix $workingdir/star/${i}_unsort. \
-        --genomeDir $refdir \
-        --readFilesIn $workingdir/trimmed/${i}_fp1.fastq.gz \
-                    $workingdir/trimmed/${i}_fp2.fastq.gz \
-        --readFilesCommand zcat
+		STAR \
+			--outMultimapperOrder Random \
+			--outSAMmultNmax 1 \
+			--runThreadN ${SLURM_CPUS_PER_TASK} \
+			--runMode alignReads \
+			--outSAMtype BAM Unsorted \
+			--quantMode GeneCounts \
+			--outFileNamePrefix ${i}_${x}_unsort. \
+			--genomeDir $refdir/ \
+			--readFilesIn /mnt/scratch/c1831460/RNA-seq/fastp/${i}_${x}.fastp1.gz \
+			$workingdir/fastp/${i}_${x}.fastp2.gz \
+			--readFilesCommand zcat
 
-    echo ${i} " = complete"
+		echo ${i} " = complete"
+	done
 done
 
-echo "ALIGNMENT COMPLETE\n" "============================="
+echo "ALIGNMENT COMPLETE"
+echo "============================="
 
 #################################################################################
 # End
