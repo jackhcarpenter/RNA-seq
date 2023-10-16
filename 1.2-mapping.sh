@@ -33,11 +33,11 @@ module load STAR/2.7.6a
 
 # point to the directory containing the reference genome
 
-export refdir=/mnt/scratch/c1831460/RNA-seq/reference_genome
+export refdir=/mnt/scratch/xxxxxx/RNA-seq/reference_genome
 
 # define the working directory
 
-export workingdir=/mnt/scratch/c1831460/RNA-seq
+export workingdir=/mnt/scratch/xxxxxx/RNA-seq
 
 ##REMEMBER: set up any directories that the software needs in this script in case 
 ##it is unable to do so itself
