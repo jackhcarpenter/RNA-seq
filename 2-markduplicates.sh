@@ -35,11 +35,11 @@ module load samtools/1.10
 
 # point to the directory containing the reference genome
 
-export $refdir=/mnt/scratch/xxxxxx/RNA-seq/reference_genome
+export refdir=/mnt/scratch/xxxxxx/RNA-seq/reference_genome
 
 # define the working directory
 
-export $workingdir=/mnt/scratch/xxxxxx/RNA-seq
+export workingdir=/mnt/scratch/xxxxxx/RNA-seq
 
 ##REMEMBER: set up any directories that the software needs in this script in case 
 ##it is unable to do so itself
@@ -79,18 +79,33 @@ list=("STM_C3_S7" \
 	"TCP_M5_S15" \
 	"Undetermined_S0")
 
-for i in ${list[@]}
+for x in ${lane[@]}
 do
 
 	for i in ${list[@]}
 
 	do
+		
 		echo "============================="
+		echo ${i} "samtoolsort = running"
+
+		# Sort sequences so that they are organized by genomic coordinates
+		samtools sort \
+		-@ ${SLURM_CPUS_PER_TASK} \
+		-o $workingdir/star/${i}_${x}.sorted.bam \
+		$workingdir/star/${i}_${x}_unsort.Aligned.out.bam
+		
+		samtools index \
+		$workingdir/star/${i}_${x}.sorted.bam
+		
+		echo ${i} "samtoolsort = complete"
+		echo "============================="
+		
 		echo ${i} "markdup = running"
 
 		## Mark the duplicated reads
 		java -jar $PICARD MarkDuplicates \
-			I=$workingdir/bowtie/${i}_${x}.sorted.bam \
+			I=$workingdir/star/${i}_${x}.sorted.bam \
 			O=$workingdir/markdup/${i}_${x}.markdup.bam \
 			M=$workingdir/markdup/${i}_${x}.metrics.markdup.txt \
 			REMOVE_DUPLICATES=false \
