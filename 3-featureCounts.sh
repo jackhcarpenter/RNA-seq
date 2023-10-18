@@ -31,9 +31,13 @@ echo \$SLURM_MEM_PER_CPU=${SLURM_MEM_PER_CPU}
 
 module load subread-2.0.0-gcc-8.3.1-l7x34bp
 
+# define the reference directroy
+
+export refdir=/mnt/scratch/xxxxxx/RNA-seq/reference_genome
+
 # define the working directory
 
-export $workingdir=/your/working/directory
+export workingdir=/mnt/scratch/xxxxxx/RNA-seq
 
 ##REMEMBER: set up any directories that the software needs in this script in case 
 ##it is unable to do so itself
@@ -44,10 +48,30 @@ mkdir featureCounts
 # Main CMD
 #################################################################################
 
-list=(
-        "sample_1" \
-        "sample_2" \
-        "sample_n")
+list=("STM_C3_S7" \
+	"STM_C4_S8" \
+	"STM_C5_S9" \
+	"STM_CD3_S10" \
+	"STM_CD4_S11" \
+	"STM_CD5_S12" \
+	"STM_D3_S4" \
+	"STM_D4_S5" \
+	"STM_D5_S6" \
+	"STM_M3_S1" \
+	"STM_M4_S2" \
+	"STM_M5_S3" \
+	"TCP_C2_S19" \
+	"TCP_C4_S20" \
+	"TCP_C5_S21" \
+	"TCP_CO2_S22" \
+	"TCP_CO4_S23" \
+	"TCP_CO5_S24" \
+	"TCP_D2_S16" \
+	"TCP_D4_S17" \
+	"TCP_D5_S18" \
+	"TCP_M2_S13" \
+	"TCP_M4_S14" \
+	"TCP_M5_S15")
 
 for i in ${list[@]}
 do

@@ -121,7 +121,7 @@ do
 
 		## Remove the duplicated reads
 		java -jar $PICARD MarkDuplicates \
-			I=$workingdir/bowtie/${i}_${x}.sorted.bam \
+			I=$workingdir/star/${i}_${x}.sorted.bam \
 			O=$workingdir/markdup/${i}_${x}.rmdup.bam \
 			M=$workingdir/markdup/${i}_${x}.metrics.rmdup.txt \
 			REMOVE_DUPLICATES=true \
