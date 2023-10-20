@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --partition=QUEUE_NAME       # the requested queue
+#SBATCH --partition=defq       # the requested queue
 #SBATCH --nodes=1              # number of nodes to use
 #SBATCH --tasks-per-node=1     #
 #SBATCH --cpus-per-task=2      #  
@@ -8,7 +8,7 @@
 #SBATCH --time=6:0:0
 #SBATCH --error=logs/%J.err         # redirect stderr to this file
 #SBATCH --output=logs/%J.out        # redirect stdout to this file
-#SBATCH --mail-user=USERNAME@INSTITUTIONAL_ADDRESS # email address used for event notification
+#SBATCH --mail-user=carpenterj3@cardiff.ac.uk   # email address used for event notification
 #SBATCH --mail-type=BEGIN,END,FAIL # email on job start, end, and/or failure
 
 #################################################################################
@@ -41,8 +41,6 @@ export workingdir=/mnt/scratch/xxxxxx/RNA-seq
 
 ##REMEMBER: set up any directories that the software needs in this script in case 
 ##it is unable to do so itself
-
-mkdir featureCounts
 
 #################################################################################
 # Main CMD
@@ -87,7 +85,7 @@ do
                 -F GTF \
                 -t exon \
                 -g gene_id \
-                -a $refdir/YOUR_REFERENCE_ANNOTATION.gtf \
+                -a $refdir/Arabidopsis_thaliana.TAIR10.57.gtf \
                 -o $workingdir/featureCounts/${i}.markdup.featurecount \
                 $workingdir/markdup/${i}.markdup.bam
 
