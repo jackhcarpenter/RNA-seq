@@ -29,7 +29,7 @@ echo \$SLURM_MEM_PER_CPU=${SLURM_MEM_PER_CPU}
 # Modulels to Load and Setup
 #################################################################################
 
-module load subread-2.0.0-gcc-8.3.1-l7x34bp
+module load subread-2.0.2-gcc-8.5.0-ndr2tdq
 
 # define the reference directroy
 
@@ -86,7 +86,7 @@ do
                 -t exon \
                 -g gene_id \
                 -a $refdir/Arabidopsis_thaliana.TAIR10.57.gtf \
-                -o $workingdir/featureCounts/${i}.markdup.featurecount \
+                -o $workingdir/featureCounts/${i}.markdup.featurecounts.txt \
                 $workingdir/markdup/${i}.markdup.bam
 
     echo ${i} "markdup FC = complete"
@@ -100,7 +100,7 @@ do
                 -t exon \
                 -g gene_id \
                 -a $refdir/YOUR_REFERENCE_ANNOTATION \
-                -o $workingdir/featureCounts/${i}.rmdup.featurecount \
+                -o $workingdir/featureCounts/${i}.rmdup.featurecounts.txt \
                 $workingdir/markdup/${i}.rmdup.bam
 
     echo ${i} "remove duplicate FC = complete" 
