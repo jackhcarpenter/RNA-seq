@@ -35,11 +35,11 @@ setwd("C:/Users/c1831460/OneDrive - Cardiff University/Documents/DTP/Second Year
 
 # Create dataframe contianing output from 3-featureCounts.sh
 
-markdup <- list.files(
-  pattern = "*.markdup.csv")
+STM <- list.files(
+  pattern = "STM.*.csv")
 
-rmdup <- list.files(
-  pattern = "*.rmdup.csv")
+TCP4 <- list.files(
+  pattern = "TCP4.*.csv")
 
 # Create tables to tell DESeq2 what the variables are
 # The number of samplesheets (coldata) you need will depend on the number of
@@ -91,7 +91,7 @@ TCP4_coldata <- data.frame(
                       replicate = c("1", "2", "3")
 )
 
-dup = list(markdup = markdup, rmdup = rmdup)
+gene = list(STM = STM, TCP4 = TCP4)
 
 ################################################################################
 # Main CMDs
@@ -102,11 +102,13 @@ dup = list(markdup = markdup, rmdup = rmdup)
 colDatafield <- list(STM_coldata, TCP4_coldata)
 namefield <- c("markdup", "rmdup")
 genotypefield <- c("STM", "TCP4")
-index = as.numeric(1)
+index1 = as.numeric(1)
+index2 = as.numeric(1)
 
 
-for (i in dup) {
+for (i in gene) {
   print(i)
+  index1 = as.numeric(1)
   for(j in i) {
   print(j)
   # Read the data from standard input
@@ -120,7 +122,7 @@ for (i in dup) {
       
   # Use dds to combine the coldata and countdata matrix
   # State the variable/factor being analysed using the "design" flag
-    coldata <- colDatafield[[index]]
+    coldata <- colDatafield[[index2]]
     dds <- DESeqDataSetFromMatrix(
       countData = data, 
       colData = coldata,
@@ -133,7 +135,7 @@ for (i in dup) {
   
     dds$treatment <- relevel(
       dds$treatment, 
-      ref = "M")
+      ref = "D")
   
   # Run the DESeq command on the DESeq dataset
   
@@ -141,7 +143,7 @@ for (i in dup) {
   
   # Look at the contrasts we can build
     resultsNames(dds)
-
+    
 # Generate a results table, and specify the contrast we want to build
   
 #    res <- results(
@@ -155,14 +157,14 @@ for (i in dup) {
     
     res <- results(
       dds,
-      name = "treatment_D_vs_M"
+      name = "treatment_M_vs_D"
     )
 
   # Log fold change shrinkage for visualisation can be done using different models
   
     resLFC <- lfcShrink(
       dds, 
-      coef= "treatment_D_vs_M",
+      coef= "treatment_M_vs_D",
       type= "apeglm")
   
     resLFC
@@ -197,12 +199,12 @@ for (i in dup) {
   
   # Extract all genes (independent of differential expression)
     print(paste( 
-      genotypefield[index], "_M_vs_D_", namefield[index], "_DEGs.csv", 
+      genotypefield[index2], "_M_vs_D_", namefield[index1], "_DEGs.csv", 
       sep = ""))
     
     write.csv(resLFC, (
       file = paste( 
-        genotypefield[index], "_M_vs_D_", namefield[index], "_DEGs.csv", 
+        genotypefield[index2], "_M_vs_D_", namefield[index1], "_DEGs.csv", 
         sep = "")))
   
   # Extract significant upregulated and down regulated genes into separate
@@ -223,9 +225,9 @@ for (i in dup) {
   #write csv file of for up and down regualted gene IDs
   
     write.csv(upreg, (
-      file = file.path("DEGs/",
+      file = file.path("DEGs",
                        paste( 
-                         genotypefield[index], "_M_vs_D_", namefield[index], 
+                         genotypefield[index2], "_M_vs_D_", namefield[index1], 
                          "_upreg.csv", 
                          sep = "")))
       )
@@ -233,11 +235,11 @@ for (i in dup) {
     write.csv(upreg, (
       file = file.path("DEGs/",
                        paste( 
-                         genotypefield[index], "_M_vs_D_", namefield[index], 
+                         genotypefield[index2], "_M_vs_D_", namefield[index1], 
                          "_downreg.csv", 
                          sep = "")))
       )
-    
+    index1 <- index1+1
   }
-  index <- index+1
+  index2 <- index2+1
 }
