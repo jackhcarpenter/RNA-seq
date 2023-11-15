@@ -1,8 +1,10 @@
 ################################################################################
-# Setup and loading dependencies
+# Loading dependencies
 ################################################################################
 
 # Installing DESeq2
+
+install.packages("BiocManager")
 
 if (first == "install") {
   source("http://bioconductor.org/biocLite.R")
@@ -10,9 +12,22 @@ if (first == "install") {
   stop("Installation completed", call.=FALSE)
 }
 
+BiocManager::install("apeglm")
+
 # Loading DESeq2
 
 library("DESeq2")
+library("apeglm")
+
+################################################################################
+# Processing featureCount output and setting up environment
+################################################################################
+
+# The output from featureCount is given as tabe separated files for each sample.
+# Files need to be converted to a new format that merges all STM-related files
+# and another for TCP4-related files
+
+
 
 # Point to the working dir
 
@@ -21,54 +36,17 @@ setwd("C:/Users/c1831460/OneDrive - Cardiff University/Documents/DTP/Second Year
 # Create dataframe contianing output from 3-featureCounts.sh
 
 markdup <- list.files(
-  pattern = " *.markdup.featurecounts.csv")
+  pattern = "*.markdup.csv")
 
 rmdup <- list.files(
-  pattern = " *.rmdup.featurecounts.csv")
+  pattern = "*.rmdup.csv")
 
 # Create tables to tell DESeq2 what the variables are
 # The number of samplesheets (coldata) you need will depend on the number of
 # timepoints/variables you want to compare
 
-
-#All
-coldata <- data.frame(
-                      sample = c("STM_C3_S7",
-                                 "STM_C4_S8",
-                                 "STM_C5_S9",
-                                 "STM_CD3_S10",
-                                 "STM_CD4_S11",
-                                 "STM_CD5_S12",
-                                 "STM_D3_S4",
-                                 "STM_D4_S5",
-                                 "STM_D5_S6",
-                                 "STM_M3_S1",
-                                 "STM_M4_S2",
-                                 "STM_M5_S3",
-                                 "TCP_C2_S19",
-                                 "TCP_C4_S20",
-                                 "TCP_C5_S21",
-                                 "TCP_CO2_S22",
-                                 "TCP_CO4_S23",
-                                 "TCP_CO5_S24",
-                                 "TCP_D2_S16",
-                                 "TCP_D4_S17",
-                                 "TCP_D5_S18",
-                                 "TCP_M2_S13",
-                                 "TCP_M4_S14",
-                                 "TCP_M5_S15"
-                                 ),
-                      genotype = c("C", "C", "C",
-                                   "CD","CD","CD",
-                                   "D","D","D",
-                                   "M","M", "M"
-                                   ),
-                      replicate = c("1", "2", "3"
-                                    )
-)
-
 #STM
-coldata <- data.frame(
+STM_coldata <- data.frame(
                       sample = c("STM_C3_S7",
                                  "STM_C4_S8",
                                  "STM_C5_S9",
@@ -82,16 +60,16 @@ coldata <- data.frame(
                                  "STM_M4_S2",
                                  "STM_M5_S3"
                                   ),
-                      genotype = c("C", "C", "C",
-                                   "CD","CD","CD",
-                                   "D","D","D",
-                                   "M","M", "M"
-                                    ),
+                      treatment = factor(c("C", "C", "C",
+                                    "CD","CD","CD",
+                                    "D","D","D",
+                                    "M","M", "M"
+                                    )),
                       replicate = c("1", "2", "3")
 )
 
 #TCP4
-coldata <- data.frame(
+TCP4_coldata <- data.frame(
                       sample = c("TCP_C2_S19",
                                  "TCP_C4_S20",
                                  "TCP_C5_S21",
@@ -105,11 +83,11 @@ coldata <- data.frame(
                                  "TCP_M4_S14",
                                  "TCP_M5_S15"
                                   ),
-                      genotype = c("C", "C", "C",
-                                   "CD","CD","CD",
-                                   "D","D","D",
-                                   "M","M", "M"
-                                   ),
+                      treatment = factor(c("C", "C", "C",
+                                    "CD","CD","CD",
+                                    "D","D","D",
+                                    "M","M", "M"
+                                   )),
                       replicate = c("1", "2", "3")
 )
 
@@ -121,17 +99,20 @@ dup = list(markdup = markdup, rmdup = rmdup)
 
 # Create loop
 
+colDatafield <- list(STM_coldata, TCP4_coldata)
 namefield <- c("markdup", "rmdup")
+genotypefield <- c("STM", "TCP4")
 index = as.numeric(1)
 
+
 for (i in dup) {
-  
+  print(i)
   for(j in i) {
-  
+  print(j)
   # Read the data from standard input
   
     data <- as.matrix(read.csv(
-      file = paste (j, ".", namefield[index], ".", "featurecounts.csv", 
+      file = paste (j,
                     sep = ""),
       header = TRUE,
       row.names = "Geneid",
@@ -139,45 +120,49 @@ for (i in dup) {
       
   # Use dds to combine the coldata and countdata matrix
   # State the variable/factor being analysed using the "design" flag
-  
+    coldata <- colDatafield[[index]]
     dds <- DESeqDataSetFromMatrix(
       countData = data, 
       colData = coldata,
-      design = ~ genotype)
+      design = ~ treatment)
     
     dds
     
   # As R will automatically choose the reference level for the variable/factor,
   # the control group needs to be defined and releveled
   
-    dds$genotype <- relevel(
-      dds$genotype, 
+    dds$treatment <- relevel(
+      dds$treatment, 
       ref = "M")
   
   # Run the DESeq command on the DESeq dataset
   
     dds <- DESeq(dds)
   
-  # Generate a results table, and specify the contrast we want to build
+  # Look at the contrasts we can build
+    resultsNames(dds)
+
+# Generate a results table, and specify the contrast we want to build
   
-    res <- results(
-      dds,
-      contrast=c(
-        "genotype",
-        "M",
-        "C"))
+#    res <- results(
+#      dds,
+#      contrast=c(
+#        "genotype",
+#        "M",
+#        "C"))
   
   #OR...
-  
-  #  res <- results(
-  #    dds,
-  #    name = "genotype_TCP4_vs_WT")
-  
+    
+    res <- results(
+      dds,
+      name = "treatment_D_vs_M"
+    )
+
   # Log fold change shrinkage for visualisation can be done using different models
   
     resLFC <- lfcShrink(
       dds, 
-      coef= "genotype_STM_M_vs_STM_C",
+      coef= "treatment_D_vs_M",
       type= "apeglm")
   
     resLFC
@@ -204,18 +189,20 @@ for (i in dup) {
   # The plot can be used to identify the rownumber of individual genes
   # interactively
   
-    idx <- identify(
-      res$baseMean, 
-      res$log2FoldChange)
+  #  idx <- identify(
+  #    res$baseMean, 
+  #    res$log2FoldChange)
     
-    rownames(res)[idx]
+  #  rownames(res)[idx]
   
   # Extract all genes (independent of differential expression)
+    print(paste( 
+      genotypefield[index], "_M_vs_D_", namefield[index], "_DEGs.csv", 
+      sep = ""))
     
     write.csv(resLFC, (
       file = paste( 
-        j, "_", namefield[index], 
-        "_DEGs.csv", 
+        genotypefield[index], "_M_vs_D_", namefield[index], "_DEGs.csv", 
         sep = "")))
   
   # Extract significant upregulated and down regulated genes into separate
@@ -236,16 +223,20 @@ for (i in dup) {
   #write csv file of for up and down regualted gene IDs
   
     write.csv(upreg, (
-      file = paste( 
-        j, ".", namefield[index],
-        "_upreg.csv", 
-        sep = "")))
+      file = file.path("DEGs/",
+                       paste( 
+                         genotypefield[index], "_M_vs_D_", namefield[index], 
+                         "_upreg.csv", 
+                         sep = "")))
+      )
       
-    write.csv(downreg, (
-      file = paste( 
-        j, ".", namefield[index],
-        "_downreg.csv", 
-        sep = "")))
+    write.csv(upreg, (
+      file = file.path("DEGs/",
+                       paste( 
+                         genotypefield[index], "_M_vs_D_", namefield[index], 
+                         "_downreg.csv", 
+                         sep = "")))
+      )
     
   }
   index <- index+1
