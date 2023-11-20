@@ -107,11 +107,15 @@ index2 = as.numeric(1)
 
 
 for (i in gene) {
+  
   print(i)
+  
   index1 = as.numeric(1)
+  
   for(j in i) {
-  print(j)
-  # Read the data from standard input
+  
+    print(j)
+    # Read the data from standard input
   
     data <- as.matrix(read.csv(
       file = paste (j,
@@ -135,7 +139,7 @@ for (i in gene) {
   
     dds$treatment <- relevel(
       dds$treatment, 
-      ref = "D")
+      ref = "M")
   
   # Run the DESeq command on the DESeq dataset
   
@@ -146,24 +150,24 @@ for (i in gene) {
     
 # Generate a results table, and specify the contrast we want to build
   
-#    res <- results(
-#      dds,
-#      contrast=c(
-#        "genotype",
-#        "M",
-#        "C"))
+    res <- results(
+      dds,
+      contrast=c(
+        "treatment",
+        "M",
+        "D"))
   
   #OR...
     
-    res <- results(
-      dds,
-      name = "treatment_M_vs_D"
-    )
+#    res <- results(
+#      dds,
+#      name = "treatment_M_vs_D"
+#    )
 
   # Log fold change shrinkage for visualisation can be done using different models
   
     resLFC <- lfcShrink(
-      dds, 
+      dds,
       coef= "treatment_M_vs_D",
       type= "apeglm")
   
@@ -198,14 +202,16 @@ for (i in gene) {
   #  rownames(res)[idx]
   
   # Extract all genes (independent of differential expression)
-    print(paste( 
+    print(file.path("DEGs", genotypefield[index2],
+      paste( 
       genotypefield[index2], "_M_vs_D_", namefield[index1], "_DEGs.csv", 
-      sep = ""))
+      sep = "")))
     
     write.csv(resLFC, (
-      file = paste( 
+      file = file.path("DEGs", genotypefield[index2],
+        paste( 
         genotypefield[index2], "_M_vs_D_", namefield[index1], "_DEGs.csv", 
-        sep = "")))
+        sep = ""))))
   
   # Extract significant upregulated and down regulated genes into separate
   # datasets
@@ -225,7 +231,7 @@ for (i in gene) {
   #write csv file of for up and down regualted gene IDs
   
     write.csv(upreg, (
-      file = file.path("DEGs",
+      file = file.path("DEGs", genotypefield[index2],
                        paste( 
                          genotypefield[index2], "_M_vs_D_", namefield[index1], 
                          "_upreg.csv", 
@@ -233,13 +239,16 @@ for (i in gene) {
       )
       
     write.csv(upreg, (
-      file = file.path("DEGs/",
+      file = file.path("DEGs", genotypefield[index2],
                        paste( 
                          genotypefield[index2], "_M_vs_D_", namefield[index1], 
                          "_downreg.csv", 
                          sep = "")))
       )
+    
     index1 <- index1+1
+  
   }
+  
   index2 <- index2+1
 }
