@@ -51,14 +51,15 @@ do
 
 	do
 		echo "S"${i}" = running"
-		awk 'NR>1' $workingdir/*S${i}.${x}.featurecounts.csv | \
+		awk 'NR>1' $workingdir/*S${i}.${x}.featurecounts.txt | \
 		       	awk '{print $1, $7}' FS='\t' \
-			>> joined/S${i}.${x}.csv
+			>> joined/S${i}.${x}.txt
 		echo ${i} " = complete"
 	done
 
 done
-echo "============================="
+echo ${x} " first and last column extraction  = complete"
+echo "============================="S13.markdup.bam
 
 
 # using join to merge STM and TCP4 featureCount files into gene-specific 
@@ -70,9 +71,9 @@ do
 	
 	echo "${x}"
 	join \
-		$workingdir/joined/S1.${x}.csv \
-		$workingdir/joined/S2.${x}.csv \
-		>> $workingdir/joined/temp.S2.${x}.csv
+		$workingdir/joined/S1.${x}.txt \
+		$workingdir/joined/S2.${x}.txt \
+		>> $workingdir/joined/temp.S2.${x}.txt
 
 	# now add all second columns from the other files to the dataframe
 
@@ -89,9 +90,9 @@ do
 		# so the files created are marked as temp. to be removed later
                 
 		join \
-            joined/temp.S${previous}.${x}.csv \
-            joined/S${i}.${x}.csv \
-		    >> joined/temp.S${i}.${x}.csv
+			joined/temp.S${previous}.${x}.txt \
+			joined/S${i}.${x}.txt \
+			>> joined/temp.S${i}.${x}.txt
 	
 	done
 
@@ -99,8 +100,8 @@ do
 
 	sed \
 		's/ /\t/g' \
-		$workingdir/joined/temp.S12.${x}.csv \
-		> $workingdir/joined/STM.${x}.csv
+		$workingdir/joined/temp.S12.${x}.txt \
+		>> $workingdir/joined/STM.${x}.csv
 
 	echo "============================="
 	
@@ -114,9 +115,9 @@ do
         
 	echo "${x}"
 	join \
-		$workingdir/joined/S13.${x}.csv \
-        $workingdir/joined/S14.${x}.csv \
-        > $workingdir/joined/temp.${i}.${x}.csv
+		$workingdir/joined/S13.${x}.txt \
+		$workingdir/joined/S14.${x}.txt \
+		>> $workingdir/joined/temp.${i}.${x}.txt
 
 	# now add data from the other files to it
         
@@ -130,17 +131,17 @@ do
             previous=$(($i-$sum))
 
             join  \
-                joined/temp.S${previous}.${x}.csv \
-                joined/S${i}.${x}.csv \
-                >> joined/temp.S${i}.${x}.csv
+		    joined/temp.S${previous}.${x}.txt \
+		    joined/S${i}.${x}.txt \
+		    >> joined/temp.S${i}.${x}.txt
 	done
 
 	echo "Converting to tab delimited format"
 
 	sed \
 		's/ /\t/g' \
-		$workingdir/joined/temp.S24.${x}.csv \
-		> $workingdir/joined/TCP4.${x}.csv
+		$workingdir/joined/temp.S24.${x}.txt \
+		>> $workingdir/joined/TCP4.${x}.csv
 
 	echo "============================="
 	
@@ -150,4 +151,5 @@ done
 
 echo "cleaning up"
 
-rm $workingdir/joined/temp.*.*.csv
+#rm $workingdir/joined/temp.*.*.csv
+
