@@ -5,14 +5,8 @@
 # Installing DESeq2
 
 install.packages("BiocManager")
-
-if (first == "install") {
-  source("http://bioconductor.org/biocLite.R")
-  biocLite("DESeq2")
-  stop("Installation completed", call.=FALSE)
-}
-
 BiocManager::install("apeglm")
+BiocManager::install("DESeq2")
 
 # Loading DESeq2
 
@@ -47,62 +41,79 @@ TCP4 <- list.files(
 
 #STM
 STM_coldata <- data.frame(
-                      sample = c("STM_C3_S7",
-                                 "STM_C4_S8",
-                                 "STM_C5_S9",
-                                 "STM_CD3_S10",
-                                 "STM_CD4_S11",
-                                 "STM_CD5_S12",
-                                 "STM_D3_S4",
-                                 "STM_D4_S5",
-                                 "STM_D5_S6",
-                                 "STM_M3_S1",
-                                 "STM_M4_S2",
-                                 "STM_M5_S3"
-                                  ),
-                      treatment = factor(c("C", "C", "C",
-                                    "CD","CD","CD",
-                                    "D","D","D",
-                                    "M","M", "M"
-                                    )),
-                      replicate = c("1", "2", "3")
-)
+  sample = factor(c("STM_M3_S1",
+                    "STM_M4_S2",
+                    "STM_M5_S3",
+                    "STM_D3_S4",
+                    "STM_D4_S5",
+                    "STM_D5_S6",
+                    "STM_C3_S7",
+                    "STM_C4_S8",
+                    "STM_C5_S9",
+                    "STM_CD3_S10",
+                    "STM_CD4_S11",
+                    "STM_CD5_S12"
+  )),
+  treatment = factor(c("M", "M", "M",
+                       "D","D","D",
+                       "C","C","C",
+                       "CD","CD", "CD"
+  )),
+  replicate = factor(c("1", "2", "3",
+                       "1", "2", "3",
+                       "1", "2", "3",
+                       "1", "2", "3")
+  ))
+
 
 #TCP4
 TCP4_coldata <- data.frame(
-                      sample = c("TCP_C2_S19",
-                                 "TCP_C4_S20",
-                                 "TCP_C5_S21",
-                                 "TCP_CO2_S22",
-                                 "TCP_CO4_S23",
-                                 "TCP_CO5_S24",
-                                 "TCP_D2_S16",
-                                 "TCP_D4_S17",
-                                 "TCP_D5_S18",
-                                 "TCP_M2_S13",
-                                 "TCP_M4_S14",
-                                 "TCP_M5_S15"
-                                  ),
-                      treatment = factor(c("C", "C", "C",
-                                    "CD","CD","CD",
-                                    "D","D","D",
-                                    "M","M", "M"
-                                   )),
-                      replicate = c("1", "2", "3")
-)
-
-gene = list(STM = STM, TCP4 = TCP4)
+  sample = factor(c("TCP_M2",
+                    "TCP_M4",
+                    "TCP_M5",
+                    "TCP_D2",
+                    "TCP_D4",
+                    "TCP_D5",
+                    "TCP_C2",
+                    "TCP_C4",
+                    "TCP_C5",
+                    "TCP_CO2",
+                    "TCP_CO4",
+                    "TCP_CO5"
+  )),
+  treatment = factor(c("M", "M", "M",
+                       "D","D","D",
+                       "C","C","C",
+                       "CD","CD", "CD"
+  )),
+  replicate = factor(c("1", "2", "3",
+                       "1", "2", "3",
+                       "1", "2", "3",
+                       "1", "2", "3")
+  ))
 
 ################################################################################
 # Main CMDs
 ################################################################################
 
-# Create loop
+# Create loop and var for loop
 
+# List of geneotypes to initiate the for loop
+gene = list(STM = STM, TCP4 = TCP4)
+
+# For passing different genotype data into coldata 
 colDatafield <- list(STM_coldata, TCP4_coldata)
+
+# Markduplicates and removeduplicates name list
 namefield <- c("markdup", "rmdup")
+
+# List of geneotype names as factor
 genotypefield <- c("STM", "TCP4")
+
+# To switch between namefield variables
 index1 = as.numeric(1)
+
+# To switch between genotype fields
 index2 = as.numeric(1)
 
 
@@ -123,6 +134,12 @@ for (i in gene) {
       header = TRUE,
       row.names = "Geneid",
       sep = "\t"))
+    
+    # Edit the col names of "data" to match the rownames of "coldata"
+    
+    colnames(data) <- sub("X.mnt.scratch.c1831460.RNA.seq.", namefield[index1], ".", "", colnames(data))
+    colnames(data)
+    colnames(data) <- sub(".", namefield[index1], ".bam", "", colnames(data))
       
   # Use dds to combine the coldata and countdata matrix
   # State the variable/factor being analysed using the "design" flag
@@ -154,8 +171,8 @@ for (i in gene) {
       dds,
       contrast=c(
         "treatment",
-        "M",
-        "D"))
+        "D",
+        "M"))
   
   #OR...
     
@@ -168,7 +185,7 @@ for (i in gene) {
   
     resLFC <- lfcShrink(
       dds,
-      coef= "treatment_M_vs_D",
+      coef= "treatment_D_vs_M",
       type= "apeglm")
   
     resLFC
@@ -238,7 +255,7 @@ for (i in gene) {
                          sep = "")))
       )
       
-    write.csv(upreg, (
+    write.csv(downreg, (
       file = file.path("DEGs", genotypefield[index2],
                        paste( 
                          genotypefield[index2], "_M_vs_D_", namefield[index1], 
