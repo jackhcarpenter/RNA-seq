@@ -137,9 +137,10 @@ for (i in gene) {
     
     # Edit the col names of "data" to match the rownames of "coldata"
     
-    colnames(data) <- sub("X.mnt.scratch.c1831460.RNA.seq.", namefield[index1], ".", "", colnames(data))
-    colnames(data)
-    colnames(data) <- sub(".", namefield[index1], ".bam", "", colnames(data))
+    colnames(data) <- sub("X.mnt.scratch.c1831460.RNA.seq.", "", colnames(data))
+    colnames(data) <- sub(namefield[index1], "", colnames(data))
+    colnames(data) <- sub(".merged.", "", colnames(data))
+    colnames(data) <- sub(".bam", "", colnames(data))
       
   # Use dds to combine the coldata and countdata matrix
   # State the variable/factor being analysed using the "design" flag
