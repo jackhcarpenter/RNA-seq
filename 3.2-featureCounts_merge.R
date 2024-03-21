@@ -13,21 +13,21 @@ install.packages("dplyr")
 library("dplyr")
 
 # Workingdir
-setwd("/your/working/directory")
+setwd("C:/Users/c1831460/OneDrive - Cardiff University/Documents/DTP/Second Year/RNA-seq/featureCounts/rawFC/")
 
-# Making a list of files, separated into object by genotypes
+# Making a list object containing files, separated by genotype
 STMfiles <- list.files(pattern = "STM")
 
 TCP4files <- list.files(pattern = "TCP")
 
-# Making an array of file lists
+# Making a list of file lists
 genotypes <- list(STMfiles, TCP4files)
 
 ################################################################################
 # Main CMDs
 ################################################################################
 
-# Make a dataframe that has the GeneID column so the columns from other
+# Make a matrix that has the GeneID column so the columns from other
 # featureCounts files can be added to it.
 # Because the order of GeneIDs in feature counts is the same, any file can be
 # used (can run example below).
@@ -36,16 +36,19 @@ genotypes <- list(STMfiles, TCP4files)
 #df2 <-read.table("TCP_C2_S19.markdup.featurecounts.txt")
 #print(df1$V1 %in% df2$V7)rm(df1, df2)
 
-GeneID_col <- read.table("STM_C3_S7.markdup.featurecounts.txt")
+GeneID_col <- read.table("STM_C3_S7.markdup.featurecounts.txt", 
+                         header = TRUE, 
+                         sep = "\t")
 GeneID_col <- pull(GeneID_col, 
                    var = +1, 
                    name = NULL)
+GeneID_col <- as.matrix(GeneID_col)
 
-# Initialise separate dataframes for markdup and rmdup for the if else loop
+# Initialise separate matricies for markdup and rmdup to be used in the if else loop
 markdupGeneID <- GeneID_col
 rmdupGeneID <- GeneID_col
 
-# Object holding the genotype names and a counter to name files
+# Character vector holding the genotype names and a counter to name files
 Genotype_names <- c("STM", "TCP4")
 Genotype_counter <-as.numeric(1)
 
@@ -60,17 +63,24 @@ for (x in genotypes) {
       
       # Pass markdup file into markdup_merging_file and add the 7th coloum
       # representing counts into the final merged file markdupGeneID
-      markdup_merging_file <-read.table(file)
-      markdupGeneID <- bind_cols(markdupGeneID, markdup_merging_file$V7)
-      tail(markdupGeneID)
+      markdup_merging_file <- read.table(file, 
+                                         header = TRUE, 
+                                         sep = "\t")
+      names(markdup_merging_file)[7] <- "counts"
+      markdupGeneID <- bind_cols(markdupGeneID, markdup_merging_file$counts)
+      #print(head(markdupGeneID))
       
   } else {
     
     # Pass rmdup file into rmdup_merging_file and add the 7th coloum
     # representing counts into the final merged file rmdupGeneID
-    rmdup_merging_file <-read.table(file)
-    rmdupGeneID <- bind_cols(rmdupGeneID, rmdup_merging_file$V7)
-    tail(rmdupGeneID)
+    rmdup_merging_file <- read.table(file, 
+                                     header = TRUE, 
+                                     sep = "\t")
+    #rename this column becuase it varies between files
+    names(rmdup_merging_file)[7] <- "counts"
+    rmdupGeneID <- bind_cols(rmdupGeneID, rmdup_merging_file$counts)
+    #print(head(rmdupGeneID))
         
   }
     
@@ -78,14 +88,14 @@ for (x in genotypes) {
   }
   
   # Write the markdup file
-  markdupGeneID <- as.matrix(markdupGeneID)
-  write.csv(markdupGeneID, file = paste(Genotype_names[Genotype_counter],"_markdup.csv"), row.names = TRUE)
+  write.csv(markdupGeneID, file = paste0(
+    Genotype_names[Genotype_counter],"_markdup.csv"), row.names = FALSE)
   
   # Write the rmdup file
-  rmdupGeneID <- as.matrix(rmdupGeneID)
-  write.csv(rmdupGeneID, file = paste(Genotype_names[Genotype_counter],"_rmdup.csv"), row.names = TRUE)
+  write.csv(rmdupGeneID, file = paste0(
+    Genotype_names[Genotype_counter],"_rmdup.csv"), row.names = FALSE)
   
-  # Reset GeneID objects
+  # Reset GeneID matricies
   markdupGeneID <- GeneID_col
   rmdupGeneID <- GeneID_col
   

@@ -41,23 +41,23 @@ TCP4 <- list.files(
 
 #STM
 STM_coldata <- data.frame(
-  sample = factor(c("STM_M3_S1",
-                    "STM_M4_S2",
-                    "STM_M5_S3",
-                    "STM_D3_S4",
-                    "STM_D4_S5",
-                    "STM_D5_S6",
-                    "STM_C3_S7",
+  sample = factor(c("STM_C3_S7",
                     "STM_C4_S8",
                     "STM_C5_S9",
                     "STM_CD3_S10",
                     "STM_CD4_S11",
-                    "STM_CD5_S12"
+                    "STM_CD5_S12",
+                    "STM_D3_S4",
+                    "STM_D4_S5",
+                    "STM_D5_S6",
+                    "STM_M3_S1",
+                    "STM_M4_S2",
+                    "STM_M5_S3"
   )),
-  treatment = factor(c("M", "M", "M",
+  treatment = factor(c("C", "C", "C",
+                       "CD","CD","CD",
                        "D","D","D",
-                       "C","C","C",
-                       "CD","CD", "CD"
+                       "M","M", "M"
   )),
   replicate = factor(c("1", "2", "3",
                        "1", "2", "3",
@@ -68,23 +68,23 @@ STM_coldata <- data.frame(
 
 #TCP4
 TCP4_coldata <- data.frame(
-  sample = factor(c("TCP_M2",
-                    "TCP_M4",
-                    "TCP_M5",
-                    "TCP_D2",
-                    "TCP_D4",
-                    "TCP_D5",
-                    "TCP_C2",
-                    "TCP_C4",
-                    "TCP_C5",
-                    "TCP_CO2",
-                    "TCP_CO4",
-                    "TCP_CO5"
+  sample = factor(c("TCP_C2_S19",
+                    "TCP_C4_S20",
+                    "TCP_C5_S21",
+                    "TCP_CD2_S22",
+                    "TCP_CD3_S23",
+                    "TCP_CD5_S24",
+                    "TCP_D2_S16",
+                    "TCP_D4_S17",
+                    "TCP_D5_S18",
+                    "TCP_M2_S13",
+                    "TCP_M4_S14",
+                    "TCP_M5_S15"
   )),
-  treatment = factor(c("M", "M", "M",
+  treatment = factor(c("C", "C", "C",
+                       "CD","CD","CD",
                        "D","D","D",
-                       "C","C","C",
-                       "CD","CD", "CD"
+                       "M","M", "M"
   )),
   replicate = factor(c("1", "2", "3",
                        "1", "2", "3",
@@ -132,8 +132,8 @@ for (i in gene) {
       file = paste (j,
                     sep = ""),
       header = TRUE,
-      row.names = "Geneid",
-      sep = "\t"))
+      row.names = 1,
+      sep = ","))
     
     # Edit the col names of "data" to match the rownames of "coldata"
     
@@ -157,7 +157,7 @@ for (i in gene) {
   
     dds$treatment <- relevel(
       dds$treatment, 
-      ref = "M")
+      ref = "C")
   
   # Run the DESeq command on the DESeq dataset
   
@@ -172,8 +172,8 @@ for (i in gene) {
       dds,
       contrast=c(
         "treatment",
-        "D",
-        "M"))
+        "CD",
+        "C"))
   
   #OR...
     
@@ -186,7 +186,7 @@ for (i in gene) {
   
     resLFC <- lfcShrink(
       dds,
-      coef= "treatment_D_vs_M",
+      coef= "treatment_CD_vs_C",
       type= "apeglm")
   
     resLFC
@@ -222,13 +222,13 @@ for (i in gene) {
   # Extract all genes (independent of differential expression)
     print(file.path("DEGs", genotypefield[index2],
       paste( 
-      genotypefield[index2], "_M_vs_D_", namefield[index1], "_DEGs.csv", 
+      genotypefield[index2], "_C_vs_CD_", namefield[index1], "_DEGs.csv", 
       sep = "")))
     
     write.csv(resLFC, (
       file = file.path("DEGs", genotypefield[index2],
         paste( 
-        genotypefield[index2], "_M_vs_D_", namefield[index1], "_DEGs.csv", 
+        genotypefield[index2], "_C_vs_CD_", namefield[index1], "_DEGs.csv", 
         sep = ""))))
   
   # Extract significant upregulated and down regulated genes into separate
@@ -251,7 +251,7 @@ for (i in gene) {
     write.csv(upreg, (
       file = file.path("DEGs", genotypefield[index2],
                        paste( 
-                         genotypefield[index2], "_M_vs_D_", namefield[index1], 
+                         genotypefield[index2], "_C_vs_CD_", namefield[index1], 
                          "_upreg.csv", 
                          sep = "")))
       )
@@ -259,7 +259,7 @@ for (i in gene) {
     write.csv(downreg, (
       file = file.path("DEGs", genotypefield[index2],
                        paste( 
-                         genotypefield[index2], "_M_vs_D_", namefield[index1], 
+                         genotypefield[index2], "_C_vs_CD_", namefield[index1], 
                          "_downreg.csv", 
                          sep = "")))
       )
