@@ -11,7 +11,7 @@ library("gprofiler2")
 
 # Point to the working dir
 
-setwd("C:/Users/c1831460/OneDrive - Cardiff University/Documents/DTP/Second Year/RNA-seq/featureCounts/DEGs/")
+setwd("your/working/dir/featureCounts/DEGs/")
 
 
 # Read in all the files
