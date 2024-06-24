@@ -34,7 +34,7 @@ export workingdir=/mnt/scratch/xxxxxx/RNA-seq_TCP4_STM/fastq/merged
 
 echo "working dir =" $workingdir
 
-export exportdir=/mnt/scratch/xxxxxx0/RNA-seq_TCP4_STM/fastqc/
+export exportdir=/mnt/scratch/xxxxxx/RNA-seq_TCP4_STM/fastqc/
 
 echo "export dir =" $exportdir
 

@@ -4,7 +4,7 @@
 #SBATCH --nodes=1              # number of nodes to use
 #SBATCH --tasks-per-node=1     # for parallel distributed jobs
 #SBATCH --cpus-per-task=4      # for multi-threaded jobs
-#SBATCH --mem-per-cpu=4G      # in megabytes, unless unit explicitly stated
+#SBATCH --mem-per-cpu=16G      # in megabytes, unless unit explicitly stated
 #SBATCH --error=logs/%J.err         # redirect stderr to this file
 #SBATCH --output=logs/%J.out        # redirect stdout to this file
 #SBATCH --mail-user=carpenterj3@cardiff.ac.uk      # email
@@ -30,9 +30,15 @@ echo \$SLURM_MEM_PER_CPU=${SLURM_MEM_PER_CPU}
 
 module load fastp/v0.20
 
-export workingdir=/mnt/scratch/xxxxxx/RNA-seq
+export workingdir=/mnt/scratch/xxxxxx/RNA-seq_TCP4_STM/fastq/merged
 
-##REMEMBER: set up any directories that the software needs in this script in case 
+echo "working dir =" $workingdir
+
+export exportdir=/mnt/scratch/xxxxxx/RNA-seq_TCP4_STM/fastp
+
+echo "export dir =" $exportdir
+
+##REMEMBER: set up any directories that the software needs in this script in case
 ##it is unable to do so itself
 
 #################################################################################
@@ -41,58 +47,44 @@ export workingdir=/mnt/scratch/xxxxxx/RNA-seq
 
 # Loop variables
 
-lane=("L001" \
-	"L002")
+declare -a files
 
-list=("STM_C3_S7" \
-	"STM_C4_S8" \
-	"STM_C5_S9" \
-	"STM_CD3_S10" \
-	"STM_CD4_S11" \
-	"STM_CD5_S12" \
-	"STM_D3_S4" \
-	"STM_D4_S5" \
-	"STM_D5_S6" \
-	"STM_M3_S1" \
-	"STM_M4_S2" \
-	"STM_M5_S3" \
-	"TCP_C2_S19" \
-	"TCP_C4_S20" \
-	"TCP_C5_S21" \
-	"TCP_CO2_S22" \
-	"TCP_CO4_S23" \
-	"TCP_CO5_S24" \
-	"TCP_D2_S16" \
-	"TCP_D4_S17" \
-	"TCP_D5_S18" \
-	"TCP_M2_S13" \
-	"TCP_M4_S14" \
-	"TCP_M5_S15" \
-	"Undetermined_S0")
+for file in $workingdir/*
+do
+
+        if [[ $file == *R1.fastq ]]
+        then
+                files+=("$(basename ${file::-9})")
+        fi
+
+done
+
+echo ${files}
 
 # Trim low quality reads, remove adapters, and poly Gs
 
 echo "RUNNING fastp"
 
-for x in ${lane[@]}
+for i in ${files[@]}
 do
-    for i in ${list[@]}
-    do
         echo ${i} "= running"
 
         fastp \
-            -i $workingdir/fastq/${i}_${x}_R1_001.fastq.gz \
-	    	-I $workingdir/fastq/${i}_${x}_R2_001.fastq.gz \
-	    	--detect_adapter_for_pe \
+            -i $workingdir/${i}_R1.fastq \
+                -I $workingdir/${i}_R2.fastq \
+                --detect_adapter_for_pe \
             --trim_poly_g \
             --correction \
-            -o $workingdir/fastp/${i}_${x}.fastp1.gz \
-            -O $workingdir/fastp/${i}_${x}.fastp2.gz
+            -o $exportdir/${i}_R1.fastp \
+            -O $exportdir/${i}_R2.fastp
 
-    echo ${i} "= complete"
+        echo ${i} "= complete"
 
-    done
 done
 
-echo "fastp COMPLETE" 
+
+echo "fastp COMPLETE"
 echo "============================="
+#################################################################################
+# End
+#################################################################################
