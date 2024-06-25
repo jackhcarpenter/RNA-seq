@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 #SBATCH --partition=defq       # the requested queue
@@ -33,7 +34,7 @@ module load STAR/2.7.6a
 
 # point to the directory containing the reference genome
 
-export refdir=/mnt/scratch/xxxxxx/RNA-seq/reference_genome
+export refdir=/mnt/scratch/xxxxxx/RNA-seq_TCP4_STM/reference_genome
 
 ##REMEMBER: set up any directories that the software needs in this script in case
 ##it is unable to do so itself
@@ -41,6 +42,24 @@ export refdir=/mnt/scratch/xxxxxx/RNA-seq/reference_genome
 #################################################################################
 # Main CMDs
 #################################################################################
+
+
+# Retrieving release 59 of the Arabidopsis thaliana reference genome
+
+echo "============================="
+echo "Retrieving TAIR10 Release 59"
+wget -P $refdir \
+        "https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-59/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz"
+wget -P $refdir \
+        "https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-59/gtf/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.59.gtf.gz"
+
+# Unzipping reference genome and annotation files
+
+#gunzip $refdir/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz
+
+gunzip $refdir/Arabidopsis_thaliana.TAIR10.59.gtf.gz
+
+# Indexing genomes
 
 echo "============================="
 echo "RUNNING INDEXING"
@@ -51,7 +70,7 @@ STAR \
     --runMode genomeGenerate \
     --genomeDir $refdir/ \
     --genomeFastaFiles $refdir/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa\
-    --sjdbGTFfile $refdir/Arabidopsis_thaliana.TAIR10.57.gtf\
+    --sjdbGTFfile $refdir/Arabidopsis_thaliana.TAIR10.59.gtf\
     --sjdbOverhang 75
 
 # Note: Change --sjdbOverhang to length of your sequence data/2 minus

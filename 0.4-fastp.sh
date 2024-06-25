@@ -47,11 +47,13 @@ echo "export dir =" $exportdir
 
 # Loop variables
 
+# Creating an array containing one instance of each sample ID
 declare -a files
 
 for file in $workingdir/*
 do
-
+        # Arbitrarilly taking the R1 lanes to extrate the sample name whilst
+        # also ensuring it is a fastq file
         if [[ $file == *R1.fastq ]]
         then
                 files+=("$(basename ${file::-9})")
