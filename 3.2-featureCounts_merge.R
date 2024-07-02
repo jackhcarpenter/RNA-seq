@@ -5,15 +5,15 @@
 # Want to add all of the .featureCount.txt files together into one file
 
 ################################################################################
-# Loading libraries and setting up environemnt
+# Loading libraries and setting up environement
 ################################################################################
 
 # Needed for dataframe manipulation
-install.packages("dplyr")
+#install.packages("dplyr")
 library("dplyr")
 
 # Workingdir
-setwd("C:/Users/c1831460/OneDrive - Cardiff University/Documents/DTP/Second Year/RNA-seq/featureCounts/rawFC/")
+setwd("C:/Users/c1831460/OneDrive - Cardiff University/Documents/DTP/Second Year/RNA-seq TCP4_STM/featureCounts/")
 
 # Making a list object containing files, separated by genotype
 STMfiles <- list.files(pattern = "STM")
@@ -36,7 +36,7 @@ genotypes <- list(STMfiles, TCP4files)
 #df2 <-read.table("TCP_C2_S19.markdup.featurecounts.txt")
 #print(df1$V1 %in% df2$V7)rm(df1, df2)
 
-GeneID_col <- read.table("STM_C3_S7.markdup.featurecounts.txt", 
+GeneID_col <- read.table("Col-0_3h_1_S10_markdup_featurecounts.txt", 
                          header = TRUE, 
                          sep = "\t")
 GeneID_col <- pull(GeneID_col, 
@@ -61,7 +61,7 @@ for (x in genotypes) {
     # Inner if loop to delineate markdup and rmdup files in list with grep
     if (grepl("markdup", file)) {
       
-      # Pass markdup file into markdup_merging_file and add the 7th coloum
+      # Pass markdup file into markdup_merging_file and add the 7th coloumn
       # representing counts into the final merged file markdupGeneID
       markdup_merging_file <- read.table(file, 
                                          header = TRUE, 
@@ -88,11 +88,11 @@ for (x in genotypes) {
   }
   
   # Write the markdup file
-  write.csv(markdupGeneID, file = paste0(
+  write.csv(markdupGeneID, file = paste0("../",
     Genotype_names[Genotype_counter],"_markdup.csv"), row.names = FALSE)
   
   # Write the rmdup file
-  write.csv(rmdupGeneID, file = paste0(
+  write.csv(rmdupGeneID, file = paste0("../",
     Genotype_names[Genotype_counter],"_rmdup.csv"), row.names = FALSE)
   
   # Reset GeneID matricies
