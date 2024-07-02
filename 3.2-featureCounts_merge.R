@@ -15,13 +15,17 @@ library("dplyr")
 # Workingdir
 setwd("C:/Users/c1831460/OneDrive - Cardiff University/Documents/DTP/Second Year/RNA-seq TCP4_STM/featureCounts/")
 
-# Making a list object containing files, separated by genotype
-STMfiles <- list.files(pattern = "STM")
+# Making a list object containing files, separated by timepoint
+files3h <- list.files(pattern = "3h")
 
-TCP4files <- list.files(pattern = "TCP")
+files12h <- list.files(pattern = "12h")
+
+files24h <- list.files(pattern = "24h")
+
+files11d <- list.files(pattern = "11d")
 
 # Making a list of file lists
-genotypes <- list(STMfiles, TCP4files)
+timepoints <- list(files3h, files12h, files24h, files11d)
 
 ################################################################################
 # Main CMDs
@@ -48,12 +52,12 @@ GeneID_col <- as.matrix(GeneID_col)
 markdupGeneID <- GeneID_col
 rmdupGeneID <- GeneID_col
 
-# Character vector holding the genotype names and a counter to name files
-Genotype_names <- c("STM", "TCP4")
-Genotype_counter <-as.numeric(1)
+# Character vector holding the timepoint names and a counter to name files
+timepoint_names <- c("3h", "12h", "24h", "11d")
+timepoint_counter <-as.numeric(1)
 
-# Outer for loop to switch between genotypes
-for (x in genotypes) {
+# Outer for loop to switch between timepoints
+for (x in timepoints) {
   
   # Inner for loop to iterate through file in the file list
   for (file in x) {
@@ -89,16 +93,16 @@ for (x in genotypes) {
   
   # Write the markdup file
   write.csv(markdupGeneID, file = paste0("../",
-    Genotype_names[Genotype_counter],"_markdup.csv"), row.names = FALSE)
+    timepoint_names[timepoint_counter],"_markdup.csv"), row.names = FALSE)
   
   # Write the rmdup file
   write.csv(rmdupGeneID, file = paste0("../",
-    Genotype_names[Genotype_counter],"_rmdup.csv"), row.names = FALSE)
+    timepoint_names[timepoint_counter],"_rmdup.csv"), row.names = FALSE)
   
   # Reset GeneID matricies
   markdupGeneID <- GeneID_col
   rmdupGeneID <- GeneID_col
   
-  Genotype_counter <- Genotype_counter+1
+  timepoint_counter <- timepoint_counter+1
     
 }
