@@ -11,17 +11,22 @@ library("gprofiler2")
 
 # Point to the working dir
 
-setwd("your/working/dir/featureCounts/DEGs/")
+setwd("your/working/dir/DEGs")
 
 
 # Read in all the files
-files <- c(list.files("TCP4/", include.dirs = FALSE, full.names = TRUE),
-           list.files("STM/", include.dirs = FALSE, full.names = TRUE))
+files <- c(list.files("3h/", include.dirs = FALSE, full.names = TRUE),
+           list.files("12h/", include.dirs = FALSE, full.names = TRUE),
+           list.files("24h/", include.dirs = FALSE, full.names = TRUE),
+           list.files("11d/", include.dirs = FALSE, full.names = TRUE))
 
 # Creating subdirectories for output files - these lines should not be run before
 # line 18
-dir.create("STM/NamesAdded")
-dir.create("TCP4/NamesAdded")
+
+dir.create("3h/NamesAdded")
+dir.create("12h/NamesAdded")
+dir.create("24h/NamesAdded")
+dir.create("11d/NamesAdded")
 
 for (i in files) {
 
@@ -57,11 +62,18 @@ for (i in files) {
   i <- sub(".*/", "", i)
 
   # Write files into appropriate subdirectories depending on genotype
-  if (grepl("STM", i)) {
-    write.csv(outputdf, file = file.path("STM/NamesAdded", paste0(i, "")), 
-              row.names = FALSE)
-  } else {
-    write.csv(outputdf, file = file.path("TCP4/NamesAdded", paste0(i, "")), 
-              row.names = FALSE)
+  if (grepl("3h", i)) {
+      write.csv(outputdf, file = file.path("3h/NamesAdded", paste0(i, "")), 
+                row.names = FALSE)
+      } else if (grepl("12h", i)) {
+        write.csv(outputdf, file = file.path("12h/NamesAdded", paste0(i, "")), 
+                  row.names = FALSE)
+      } else if (grepl("24h", i)) {
+        write.csv(outputdf, file = file.path("24h/NamesAdded", paste0(i, "")), 
+                  row.names = FALSE)
+      } else if (grepl("11d", i)) {
+        write.csv(outputdf, file = file.path("11d/NamesAdded", paste0(i, "")), 
+                  row.names = FALSE)
+    }
   }
-}
+
